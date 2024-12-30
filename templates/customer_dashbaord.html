@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Dashboard</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('edit_profile') }}">View/Edit Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('customer_search') }}">Search Professional</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('customer_summary') }}">Summary</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h1 class="text-center">Hello, {{ customer.name }}</h1>
+        <p class="text-center">Select an option from the menu above.</p>
+        <h2 class="text-center mt-4">Your Bookings:</h2>
+        <ul class="list-group mt-4">
+            {% for booking in customer.bookings %}
+            <li class="list-group-item">
+                <strong>Professional:</strong> {{ booking.professional.name }} <br>
+                <strong>Booking Date:</strong> {{ booking.booking_date.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+                <strong>Status:</strong> {{ booking.status }} <br>
+                {% if booking.status == 'Confirmed' %}
+                    <div class="alert alert-success mt-2" role="alert">Your booking has been confirmed!</div>
+                    {% if booking.reviews %}
+                        <span>You have already submitted a review for this service.</span>
+                    {% else %}
+                        <a href="{{ url_for('submit_review', booking_id=booking.id) }}" class="btn btn-success">Submit Review</a>
+                    {% endif %}
+                {% elif booking.status == 'Cancelled' %}
+                    <div class="alert alert-danger mt-2" role="alert">Your booking has been cancelled.</div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

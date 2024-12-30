@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Services</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="navbar navbar-expand-lg navbar-light bg-success mb-4">
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('edit_profile') }}">View/Edit Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('customer_search') }}">Search Professional</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('customer_summary') }}">Summary</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('logout') }}">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <h1 class="text-center mb-4">Search Professionals</h1>
+        <form id="searchForm" method="POST" class="mb-4 p-4 shadow rounded bg-white">
+            <div class="mb-3">
+                <label for="searchBy" class="form-label">Search By:</label>
+                <select id="searchBy" name="searchBy" class="form-select" onchange="updatePlaceholder()">
+                    <option value="service_name">Service Name</option>
+                    <option value="pincode">Pincode</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="searchinput" class="form-label">Enter Search:</label>
+                <input type="text" id="searchinput" name="searchinput" class="form-control" placeholder="Enter service name" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Search</button>
+        </form>
+        <script>
+            function updatePlaceholder() {
+                const searchBy = document.getElementById('searchBy').value;
+                const searchInput = document.getElementById('searchinput');
+                if (searchBy === 'service_name') {
+                    searchInput.placeholder = "Enter service name";
+                } else if (searchBy === 'pincode') {
+                    searchInput.placeholder = "Enter pincode";
+                }
+            }
+        </script>
+        {% if results %}
+        <h2 class="text-center mb-4">Search Results:</h2>
+        <ul class="list-group">
+            {% for professional in results %}
+            <li class="list-group-item">
+                <strong>Name:</strong> {{ professional.name }} <br>
+                <strong>Service:</strong> {{ professional.service.servicename if professional.service else 'Service not found' }} <br>
+                <strong>Base Price:</strong> {{ professional.service.baseprice if professional.service else 'N/A' }} <br>
+                <strong>Address:</strong> {{ professional.address }} <br>
+                <strong>Pincode:</strong> {{ professional.pincode }} <br>
+                <strong>Phone:</strong> {{ professional.phone_number }} <br>
+                <strong>Reviews:</strong>
+                <ul>
+                    {% for review in reviews_data[professional.id] %}
+                    <li>Rating: {{ review.rating }} - Comment: {{ review.comment }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="{{ url_for('book_professional', professional_id=professional.id) }}" class="btn btn-primary">Book Now</a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-center">No professionals found for your search criteria.</p>
+        {% endif %}
+        <div class="text-center mt-4">
+            <a href="{{ url_for('customer_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

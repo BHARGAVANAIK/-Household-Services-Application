@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-success">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="{{ url_for('edit_professional_profile') }}">View/Edit Profile</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url_for('professional_search') }}">Search Customer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url_for('professional_summary') }}">Summary</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Welcome Professional</h1>
+        <p class="text-center">Select an option from the menu above.</p>
+        <h2 class="text-center mt-5">Your Bookings:</h2>
+        <ul class="list-group mb-4">
+            {% for booking in bookings %}
+                <li class="list-group-item">
+                    <strong>Customer:</strong> {{ booking.customer.name }} <br>
+                    <strong>Booking Date:</strong> {{ booking.booking_date }} <br>
+                    <strong>Status:</strong> {{ booking.status }} <br>
+                    {% if booking.status == 'Pending' %}
+                        <form action="{{ url_for('accept_booking', booking_id=booking.id) }}" method="post" class="mt-2">
+                            <button type="submit" class="btn btn-success">Accept Booking</button>
+                        </form>
+                        <form action="{{ url_for('cancel_booking', booking_id=booking.id) }}" method="post" class="mt-2">
+                            <button type="submit" class="btn btn-danger">Cancel Booking</button>
+                        </form>
+                    {% elif booking.status == 'Confirmed' %}
+                        <span class="text-success">Confirmed!</span>
+                    {% elif booking.status == 'Cancelled' %}
+                        <span class="text-danger">Cancelled</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        <h2 class="text-center">Your Confirmed Bookings</h2>
+        {% set confirmed_bookings = [] %}
+        {% for booking in bookings %}
+            {% if booking.status == 'Confirmed' %}
+                {% set _ = confirmed_bookings.append(booking) %}
+            {% endif %}
+        {% endfor %}
+        {% if confirmed_bookings %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Customer Name</th>
+                            <th>Service</th>
+                            <th>Booking Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in confirmed_bookings %}
+                            <tr>
+                                <td>{{ booking.customer.name }}</td>
+                                <td>{{ booking.professional.service.servicename }}</td>
+                                <td>{{ booking.booking_date.strftime('%Y-%m-%d') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-center">You have no confirmed bookings at the moment.</p>
+        {% endif %}
+        <h2 class="text-center">Reviews</h2>
+        <ul class="list-group">
+            {% for review in reviews %}
+                <li class="list-group-item">
+                    <strong>Customer:</strong> {{ review.booking.customer.name }}<br>
+                    <strong>Rating:</strong> {{ review.rating }}<br>
+                    <strong>Comment:</strong> {{ review.comment }}<br>
+                </li>
+            {% else %}
+                <li class="list-group-item">No reviews yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
